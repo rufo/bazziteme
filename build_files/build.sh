@@ -27,6 +27,10 @@ dnf5 install -y 1password
 curl -fsSL https://repo.ivpn.net/stable/fedora/generic/ivpn.repo > /etc/yum.repos.d/ivpn.repo
 dnf5 install -y ivpn ivpn-ui
 
+dnf5 -y copr enable alternateved/keyd
+dnf5 -y install keyd
+dnf5 -y copr disable alternateved/keyd
+
 
 # Use a COPR Example:
 #
