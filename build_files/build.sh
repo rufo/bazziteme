@@ -36,3 +36,17 @@ dnf5 -y install qt6-qtconnectivity
 #### Example for enabling a System Unit File
 
 systemctl enable podman.socket
+
+# from https://github.com/FlyinPancake/1password-flatpak-browser-integration/blob/main/1password-flatpak-browser-integration.sh
+#
+echo -e "${INFO}Adding Flatpaks to the list of supported browsers in 1Password${NC}"
+if [[ ! -d /etc/1password ]]; then
+    echo -e "${INFO}Creating directory /etc/1password${NC}"
+    mkdir /etc/1password
+fi
+if grep -q 'flatpak-session-helper' /etc/1password/custom_allowed_browsers; then
+    echo -e "${INFO}Already added to allowed browsers${NC}"
+else
+    echo -e "${INFO}Adding to allowed browsers${NC}"
+    echo -e 'flatpak-session-helper' | tee -a /etc/1password/custom_allowed_browsers >/dev/null
+fi
