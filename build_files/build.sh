@@ -21,6 +21,7 @@ dnf5 -y copr enable alternateved/keyd
 dnf5 -y install keyd
 dnf5 -y copr disable alternateved/keyd
 
+dnf5 -y install qt6-qtconnectivity
 
 # Use a COPR Example:
 #
