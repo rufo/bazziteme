@@ -39,14 +39,14 @@ systemctl enable podman.socket
 
 # from https://github.com/FlyinPancake/1password-flatpak-browser-integration/blob/main/1password-flatpak-browser-integration.sh
 #
-echo -e "${INFO}Adding Flatpaks to the list of supported browsers in 1Password${NC}"
+echo -e "Adding Flatpaks to the list of supported browsers in 1Password"
 if [[ ! -d /etc/1password ]]; then
-    echo -e "${INFO}Creating directory /etc/1password${NC}"
+    echo -e "Creating directory /etc/1password"
     mkdir /etc/1password
 fi
 if grep -q 'flatpak-session-helper' /etc/1password/custom_allowed_browsers; then
-    echo -e "${INFO}Already added to allowed browsers${NC}"
+    echo -e "Already added to allowed browsers"
 else
-    echo -e "${INFO}Adding to allowed browsers${NC}"
-    echo -e 'flatpak-session-helper' | tee -a /etc/1password/custom_allowed_browsers >/dev/null
+    echo -e "Adding to allowed browsers"
+    echo -e 'flatpak-session-helper' | tee -a /etc/1password/custom_allowed_browsers > /dev/null
 fi
