@@ -3,6 +3,18 @@ FROM scratch AS ctx
 COPY build_files /
 COPY system_files /system_files
 
+# Stage that compiles the gnome-rounded-blur helper library for blur-my-shell
+# against the exact mutter ABI shipped in the base image. The runtime stage below
+# COPYs only the 6 built artifacts from /blur-out; all build-only deps, the
+# upgraded runtime libs they pull in, and the cloned source stay in this stage.
+# See https://github.com/aunetx/blur-my-shell/blob/master/scripts/GUIDE.md
+FROM ghcr.io/ublue-os/bazzite-dx-gnome:stable AS blur-builder
+RUN --mount=type=bind,from=ctx,source=/blur-build.sh,target=/ctx/blur-build.sh \
+    --mount=type=cache,dst=/var/cache \
+    --mount=type=cache,dst=/var/log \
+    --mount=type=tmpfs,dst=/tmp \
+    /ctx/blur-build.sh
+
 # Base Image
 FROM ghcr.io/ublue-os/bazzite:stable@sha256:b923f92d5a5b59eb992e269383eba2744601052da9d3d1595f76e79aa6ce2df0
 ## Other possible base images include:
@@ -35,6 +47,10 @@ RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=cache,dst=/var/log \
     --mount=type=tmpfs,dst=/tmp \
     /ctx/build.sh
+
+### Blur library
+## Lay in the helper library built in the blur-builder stage.
+COPY --from=blur-builder /blur-out/ /usr/
 
 ### LINTING
 ## Verify final image and contents are correct.
