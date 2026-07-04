@@ -4,7 +4,25 @@
 # Runs in a throwaway builder stage built FROM the same base as the runtime image,
 # so the lib is compiled against the exact mutter ABI shipped in the final image.
 # See https://github.com/aunetx/blur-my-shell/blob/master/scripts/GUIDE.md
-set -ouex pipefail
+#
+# Defensive: if the library is already present in the base image (e.g. added by
+# upstream), the build is skipped; and because this is purely cosmetic, any
+# failure during the build produces an empty /blur-out so the final image still
+# builds without the helper - blur_my_shell will simply run without rounded
+# corners until the next base update.
+set -uo pipefail
+
+blur_lib_sentinel=/usr/lib64/libblur-effect-1.0.so
+if [[ -e "$blur_lib_sentinel" ]]; then
+    echo "blur-build: $blur_lib_sentinel already present in base image; skipping build"
+    mkdir -p /blur-out
+    exit 0
+fi
+
+# set -e from here on, but trap failures into an empty /blur-out so the runtime
+# stage's COPY --from still succeeds (no rounding -> cosmetic degradation only).
+trap 'echo "blur-build: build failed (cosmetic feature); leaving /blur-out empty"; mkdir -p /blur-out; exit 0' ERR
+set -e
 
 BLUR_BUILD_DEPS=(git meson glib2-devel mutter-devel gobject-introspection gcc)
 
