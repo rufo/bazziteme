@@ -42,6 +42,10 @@ FROM ghcr.io/ublue-os/bazzite:stable@sha256:b923f92d5a5b59eb992e269383eba2744601
 ## make modifications desired in your image and install packages by modifying the build.sh script
 ## the following RUN directive does all the things required to run "build.sh" as recommended.
 
+# Change this value to force build.sh's RUN layer to re-run even when the
+# build_files content is unchanged (e.g. after a failed step that left the
+# layer cache in a bad state). `just rebuild` bumps it automatically.
+ARG BUILD_SH_CACHEBUST=1
 RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=cache,dst=/var/cache \
     --mount=type=cache,dst=/var/log \

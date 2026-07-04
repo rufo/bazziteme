@@ -231,6 +231,18 @@ image_name $target_image=image_name:
 
     echo "${image_name}"
 
+# Rebuild the image, forcing the build.sh RUN layer to re-run by passing a
+# fresh BUILD_SH_CACHEBUST build arg. Useful when a build.sh step previously
+# failed but no other change would otherwise invalidate the cached layer.
+#   just rebuild
+rebuild $target_image=image_name $tag=default_tag:
+    #!/usr/bin/env bash
+    podman build \
+        --build-arg BUILD_SH_CACHEBUST="$(date +%s)" \
+        --pull=newer \
+        --tag "${target_image}:${tag}" \
+        .
+
 # Command: _rootful_load_image
 # Description: This script checks if the current user is root or running under sudo. If not, it attempts to resolve the image tag using podman inspect.
 #              If the image is found, it loads it into rootful podman. If the image is not found, it pulls it from the repository.
