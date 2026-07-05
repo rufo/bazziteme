@@ -26,6 +26,8 @@ dnf5 -y copr disable alternateved/keyd
 
 dnf5 -y install qt6-qtconnectivity
 
+dnf5 -y install libgda libgda-sqlite
+
 # Use a COPR Example:
 #
 # dnf5 -y copr enable ublue-os/staging
