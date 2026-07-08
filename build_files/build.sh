@@ -24,7 +24,7 @@ dnf5 -y copr enable alternateved/keyd
 dnf5 -y install keyd
 dnf5 -y copr disable alternateved/keyd
 
-dnf5 -y install qt6-qtconnectivity
+dnf5 -y install qt6-qtconnectivity powertop
 
 dnf5 -y install libgda libgda-sqlite
 
