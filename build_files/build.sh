@@ -10,24 +10,8 @@ cp -avf "/ctx/system_files"/. /
 # Packages can be installed from any enabled yum repo on the image.
 # RPMfusion repos are available by default in ublue main images
 # List of rpmfusion packages can be found here:
-# https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/43/x86_64/repoview/index.html&protocol=https&redirect=1
-
-# rpm --import https://downloads.1password.com/linux/keys/1password.asc
-# sh -c 'echo -e "[1password]\nname=1Password Stable Channel\nbaseurl=https://downloads.1password.com/linux/rpm/stable/\$basearch\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=\"https://downloads.1password.com/linux/keys/1password.asc\"" > /etc/yum.repos.d/1password.repo'
-# dnf5 install -y 1password
-
-curl -fsSL https://repo.ivpn.net/stable/fedora/generic/ivpn.repo > /etc/yum.repos.d/ivpn.repo
-dnf5 install -y ivpn ivpn-ui
-
-# TODO: look into why we should disable the copr; should we do something after installing the above?
-dnf5 -y copr enable alternateved/keyd
-dnf5 -y install keyd
-dnf5 -y copr disable alternateved/keyd
-
-dnf5 -y install qt6-qtconnectivity powertop
-
-dnf5 -y install libgda libgda-sqlite
-
+# https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/39/x86_64/repoview/index.html&protocol=https&redirect=1
+#
 # Use a COPR Example:
 #
 # dnf5 -y copr enable ublue-os/staging
@@ -35,9 +19,25 @@ dnf5 -y install libgda libgda-sqlite
 # Disable COPRs so they don't end up enabled on the final image:
 # dnf5 -y copr disable ublue-os/staging
 
-#### Example for enabling a System Unit File
+# Install IVPN as the current VPN of choice
+curl -fsSL https://repo.ivpn.net/stable/fedora/generic/ivpn.repo > /etc/yum.repos.d/ivpn.repo
+dnf5 config-manager setopt ivpn-stable.enabled=0
+dnf5 install --enable-repo="ivpn-stable" -y ivpn ivpn-ui
 
-systemctl enable podman.socket
+# Install keyd from its copr for remapping
+dnf5 -y copr enable alternateved/keyd
+dnf5 -y install keyd
+dnf5 -y copr disable alternateved/keyd
+
+# For the Copyous shell extension
+dnf5 -y install libgda libgda-sqlite
+
+# Remove pre-installed VS Code, we'll use the ublue-os/tap version
+dnf5 remove -y code || true
+rm -f /etc/yum.repos.d/vscode.repo
+
+# Other various packages
+dnf5 -y install qt6-qtconnectivity powertop
 
 # from https://github.com/FlyinPancake/1password-flatpak-browser-integration/blob/main/1password-flatpak-browser-integration.sh
 #
@@ -52,3 +52,11 @@ else
     echo -e "Adding to allowed browsers"
     echo -e 'flatpak-session-helper' | tee -a /etc/1password/custom_allowed_browsers > /dev/null
 fi
+
+# Finalizing
+
+# Clean up dnf metadata now that we're done with it
+dnf5 clean all
+
+# Clean temporary files
+rm -rf /tmp/* || true
