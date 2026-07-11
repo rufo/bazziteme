@@ -27,12 +27,16 @@ set -e
 BLUR_BUILD_DEPS=(git meson glib2-devel mutter-devel gobject-introspection gcc)
 
 # The bazzite base image excludes mesa-* and mutter* via a generated dnf override
-# (/etc/dnf/repos.override.d/99-config_manager.repo) to lock its multimedia stack;
-# mutter-devel needs mesa-libgbm-devel (already present as the matching runtime),
-# so move the override aside for this install, then restore it.
+# (/etc/dnf/repos.override.d/99-config_manager.repo) and pins mesa packages via
+# a versionlock (/etc/dnf/versionlock.toml) to lock its multimedia stack.
+# mutter-devel needs mesa-libgbm-devel, whose matching runtime must be installable;
+# move both aside for this install, then restore them.
 blur_override=/etc/dnf/repos.override.d/99-config_manager.repo
+blur_versionlock=/etc/dnf/versionlock.toml
 mv "$blur_override" "$blur_override.disabled"
+mv "$blur_versionlock" "$blur_versionlock.disabled"
 dnf5 -y install "${BLUR_BUILD_DEPS[@]}"
+mv "$blur_versionlock.disabled" "$blur_versionlock"
 mv "$blur_override.disabled" "$blur_override"
 
 # The bazzite base image ships ccache, which meson auto-detects as the C compiler
