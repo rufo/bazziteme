@@ -234,7 +234,11 @@ image_name $target_image=image_name:
 # Rebuild the image, forcing the build.sh RUN layer to re-run by passing a
 # fresh BUILD_SH_CACHEBUST build arg. Useful when a build.sh step previously
 # failed but no other change would otherwise invalidate the cached layer.
+#
+# Example:
 #   just rebuild
+#
+
 rebuild $target_image=image_name $tag=default_tag:
     #!/usr/bin/env bash
     podman build \
