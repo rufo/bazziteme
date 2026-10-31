@@ -41,17 +41,16 @@ dnf5 -y install qt6-qtconnectivity powertop
 
 # from https://github.com/FlyinPancake/1password-flatpak-browser-integration/blob/main/1password-flatpak-browser-integration.sh
 #
-echo -e "Adding Flatpaks to the list of supported browsers in 1Password"
-if [[ ! -d /etc/1password ]]; then
-    echo -e "Creating directory /etc/1password"
-    mkdir /etc/1password
-fi
-if grep -q 'flatpak-session-helper' /etc/1password/custom_allowed_browsers; then
-    echo -e "Already added to allowed browsers"
-else
-    echo -e "Adding to allowed browsers"
-    echo -e 'flatpak-session-helper' | tee -a /etc/1password/custom_allowed_browsers > /dev/null
-fi
+echo "Adding Flatpak helpers to the list of supported browsers in 1Password"
+allowed_browsers=/etc/1password/custom_allowed_browsers
+mkdir -p /etc/1password
+touch "$allowed_browsers"
+for browser in flatpak-session-helper xdg-native-messaging-proxy; do
+    if ! grep -Fxq "$browser" "$allowed_browsers"; then
+        echo "Adding $browser to allowed browsers"
+        printf '%s\n' "$browser" >> "$allowed_browsers"
+    fi
+done
 
 # Finalizing
 
