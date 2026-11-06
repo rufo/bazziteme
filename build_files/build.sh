@@ -19,6 +19,14 @@ cp -avf "/ctx/system_files"/. /
 # Disable COPRs so they don't end up enabled on the final image:
 # dnf5 -y copr disable ublue-os/staging
 
+# Give the IVPN RPMs and their scriptlets a real /opt during installation.
+if [[ -L /opt ]]; then
+    rm -- /opt
+elif [[ -d /opt ]]; then
+    rmdir -- /opt
+fi
+mkdir -- /opt
+
 # Install IVPN as the current VPN of choice
 curl -fsSL https://repo.ivpn.net/stable/fedora/generic/ivpn.repo > /etc/yum.repos.d/ivpn.repo
 dnf5 config-manager setopt ivpn-stable.enabled=0
@@ -53,6 +61,12 @@ for browser in flatpak-session-helper xdg-native-messaging-proxy; do
 done
 
 # Finalizing
+
+# Keep IVPN's packaged files in the deployment and restore writable /opt.
+install -d -m 0755 /usr/lib/opt
+mv -T -- /opt/ivpn /usr/lib/opt/ivpn
+rmdir -- /opt
+ln -s var/opt /opt
 
 # Clean up dnf metadata now that we're done with it
 dnf5 clean all
